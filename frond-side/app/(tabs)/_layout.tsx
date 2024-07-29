@@ -1,37 +1,49 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { Bolt, MessageCircle, UsersRound } from 'lucide-react-native'
+import MessagesHeaderRight from '@/components/tabs/header/messages-right'
+import ContactsHeaderRight from '@/components/tabs/header/contacts-right'
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
+    <>
+      <StatusBar style='dark' />
+      <Tabs initialRouteName='messages' screenOptions={{
+        tabBarLabelStyle: {
+          fontSize: 12
+        }
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+        <Tabs.Screen
+          name="messages"
+          options={{
+            title: 'Messages',
+            headerTitleAlign: 'left',
+            headerRight: () => <MessagesHeaderRight />,
+            tabBarIcon: ({ color, size }) => (
+              <MessageCircle size={size} color={color} />
+            )
+          }}
+        />
+        <Tabs.Screen
+          name="contacts"
+          options={{
+            title: 'Contacts',
+            headerRight: () => <ContactsHeaderRight />,
+            tabBarIcon: ({ color, size }) => (
+              <UsersRound size={size} color={color} />
+            )
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color, size }) => (
+              <Bolt size={size} color={color} />
+            )
+          }}
+        />
+      </Tabs>
+    </>
+  )
 }

@@ -1,0 +1,53 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  username    String?      @unique
+  phoneNumber String      @unique
+  password    String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  chats       ChatMember[]
+  messages    Message[]
+
+  @@map("users")
+}
+
+model Chat {
+  id        Int          @id @default(autoincrement())
+  name      String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  messages  Message[]
+  members   ChatMember[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chatId    Int
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  senderId  Int
+  sender    User     @relation(fields: [senderId], references: [id])
+}
+
+model ChatMember {
+  id        Int      @id @default(autoincrement())
+  chatId    Int
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([chatId, userId])
+}
