@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { randomBytes } from 'crypto'
 
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -21,16 +21,16 @@ export class AuthService {
 	) { }
 
 	async createAccount(dto: SignUpDto) {
-		const token = this.generateRandomString()
+		const verificationToken = this.generateRandomString()
 
 		const user = await this.prismaService.user.create({
 			data: {
 				email: dto.email,
-				verificationToken: token
+				verificationToken
 			},
 		})
 
-		await this.emailService.sendVerifyAccountEmail(user.email, token)
+		await this.emailService.sendVerifyAccountEmail(user.email, verificationToken)
 
 		return { message: 'Verification email sent' }
 	}
@@ -39,16 +39,27 @@ export class AuthService {
 		requestBody: VerifyAccountDto
 	) { }
 
-	async forgotPassword(
-		requestBody: ForgotPasswordDto
-	) { }
+	async forgotPassword(dto: ForgotPasswordDto) {
+		const user = await this.prismaService.user.findUnique({
+			where: { email: dto.email },
+		})
+		if (!user) throw new BadRequestException('User not found')
+
+		const verificationToken = this.generateRandomString()
+
+		await this.prismaService.user.update({
+			where: { email: dto.email },
+			data: {
+				verificationToken,
+			},
+		})
+
+		await this.emailService.sendForgotPasswordEmail(dto.email, verificationToken)
+
+		return { message: 'Password reset email sent' }
+	}
 
 	private generateRandomString(length = 32) {
 		return randomBytes(length).toString('hex')
 	}
-
-	private async sendEmail(
-		email: string,
-		message: string
-	) { }
 }
