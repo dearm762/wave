@@ -36,5 +36,4 @@ export class AuthService {
 		email: string,
 		message: string
 	) { }
-
 }
